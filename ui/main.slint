@@ -17,40 +17,60 @@ export component App inherits Window {
     preferred-height: 844px;
 
     VerticalLayout {
+    	spacing: 5px;
    		HorizontalLayout {
-     		Text {
-       			text: "Viewing page " + current_page;
-       		}
+     		width: 100%;
+       		height: 30px;
+
+         	spacing: 3px;
+          	
+          	Menu
+          
    			Button {
+   				width: 150px;
     			text: "Previous page";
     			clicked => {
-       				if current_page > 0 {
-       					current_page = current_page - 1;
-           			}
+   					root.prev();
+        			editor.clear-focus();
        			}
       		}
         	Button {
+         		width: 150px;
       			text: "Next page";
       			clicked => {
-         			current_page = current_page + 1;
+      				root.next();
+          			editor.clear-focus();
              	}
             }
-           	Button {
-            	text: "Compile";
-            	clicked => {
-           			root.compile();
-             	}
+           	Rectangle {
+            	width: 150px;
+            	background: green;
+            	border-bottom-left-radius: 10px;
+            	border-bottom-right-radius: 10px;
+            	border-top-left-radius: 10px;
+            	border-top-right-radius: 10px;
+
+            	TouchArea {
+           			Text {
+              	 		text: "Compile";
+                  	}
+
+	            	clicked => {
+	           			root.compile();
+	              		editor.clear-focus();
+	             	}
+              	}
             }
 
      	}
 
 	    HorizontalLayout {
+			spacing: 3px;
 	        editor := TextEdit {
-
-	            width: 40%;
-	            height: 80%;
-
+	            width: 60%;
 	            text: "\\documentclass{article}\n\\usepackage{graphicx} % Required for inserting images\n\\title{test}\n\\author{Aiden Ghim}\n\\date{October 2025}\n\\begin{document}\n\n\\maketitle\n\n\\section{Introduction}\n\\end{document}";
+
+				font-size: 16px;
 
 	            edited => {
 	                root.current = self.text;
@@ -59,7 +79,6 @@ export component App inherits Window {
 
 	        viewer := Image {
 		        width: 40%;
-		        height: 80%;
 	        }
 
 	    }
