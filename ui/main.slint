@@ -24,6 +24,11 @@ export component App inherits Window {
 
          	spacing: 3px;
 
+         	Rectangle {
+         	Text {
+          text: "Fiber Editor for LaTeX";
+          }
+          	}
 
    			Button {
    				width: 150px;
@@ -66,7 +71,7 @@ export component App inherits Window {
 	    HorizontalLayout {
 			spacing: 3px;
 	        editor := TextEdit {
-	            width: 60%;
+	            width: 50%;
 	            text: "\\documentclass{article}\n\\usepackage{graphicx} % Required for inserting images\n\\title{test}\n\\author{Aiden Ghim}\n\\date{October 2025}\n\\begin{document}\n\n\\maketitle\n\n\\section{Introduction}\n\\end{document}";
 
 				font-size: 16px;
@@ -77,7 +82,7 @@ export component App inherits Window {
 	        }
 
 	        viewer := Image {
-		        width: 40%;
+		        width: 50%;
 	        }
 
 	    }
