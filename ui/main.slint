@@ -1,0 +1,55 @@
+import {TextEdit, Button} from "std-widgets.slint";
+
+export component App inherits Window {
+    in-out property <string> current <=> editor.text;
+    in property <image> display <=> viewer.source;
+
+    in-out property <int> current_page: 0;
+
+
+
+    title: "Fiber";
+    preferred-width: 1440px;
+    preferred-height: 844px;
+
+    VerticalLayout {
+   		HorizontalLayout {
+   			Button {
+    			text: "Next page";
+    			clicked => {
+       				current_page = current_page + 1;
+       			}
+      		}
+        	Button {
+      			text: "Next page";
+      			clicked => {
+         			current_page = current_page - 1;
+             	}
+            }
+           	Button {
+            	text: "Compile";
+            }
+
+     	}
+
+	    HorizontalLayout {
+	        editor := TextEdit {
+
+	            width: 40%;
+	            height: 80%;
+
+	            text: "\\documentclass{article}\n\\usepackage{graphicx} % Required for inserting images\n\\title{test}\n\\author{Aiden Ghim}\n\\date{October 2025}\n\\begin{document}\n\n\\maketitle\n\n\\section{Introduction}\n\\end{document}";
+
+	            edited => {
+	                root.current = self.text;
+	            }
+	        }
+
+	        viewer := Image {
+		        width: 40%;
+		        height: 80%;
+	        }
+
+	    }
+	}
+}
