@@ -1,0 +1,17 @@
+[package]
+name = "fiber"
+version = "0.1.0"
+edition = '2024'
+build = "build.rs"
+
+
+[dependencies]
+slint = { version = "1.13.1", default-features = false, features = ["renderer-femtovg","backend-winit", "compat-1-2"] }
+tectonic = { version = "0.15", features = ["external-harfbuzz"] }
+hayro = "0.4.0"
+hayro-interpret = "0.4.0"
+
+
+
+[build-dependencies]
+slint-build = "1.13.1"
