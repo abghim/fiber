@@ -1,61 +1,98 @@
 use slint;
 use tectonic;
-use std::sync::Arc;
+use std::{cell::RefCell, rc::Rc, sync::Arc};
 use hayro::{render, Pdf, RenderSettings};
 use hayro_interpret::InterpreterSettings;
 
 slint::include_modules!();
 
+#[derive(Default)]
+struct SharedState {
+	compiled: Vec<slint::Image>,
+}
+
 fn main() {
 	let app_window = App::new().expect("App build error");
-	let weak = app_window.as_weak();
+	let app_weak = app_window.as_weak();
 
-	app_window.on_compile(move || {
-		let app = weak.upgrade().unwrap();
+	let app_state = Rc::new(RefCell::new(SharedState::default()));
+
+	{
+		let weak = app_weak.clone();
+		let app_state_clone = Rc::clone(&app_state);
+
+		app_window.on_compile(move || {
+			let mut st = app_state_clone.borrow_mut();
+			let app = weak.upgrade().unwrap();
+
+			let latex = app.get_current();
+			let pdf_data = tectonic::latex_to_pdf(latex).expect("LaTeX processing error");
+
+			let scale = 2.5;
+
+			let pdf_data_cell = Arc::new(pdf_data);
+			let pdf = Pdf::new(pdf_data_cell).expect("PDF data generation error");
+
+			/* v Mostly taken from `hayro` crate's public example https://github.com/LaurenzV/hayro/blob/master/hayro/examples/render.rs */
+
+			let interpreter_settings = InterpreterSettings::default();
+
+		    let render_settings = RenderSettings {
+		        x_scale: scale,
+		        y_scale: scale,
+		        ..Default::default()
+		    };
+		    let mut slint_images: Vec<slint::Image> = Vec::new();
 
 
-		let latex = app.get_current();
-		let pdf_data = tectonic::latex_to_pdf(latex).expect("LaTeX processing error");
+		    for (idx, page) in pdf.pages().iter().enumerate() {
+		        let png = render(page, &interpreter_settings, &render_settings).take_png();
 
-		println!("LaTeX processing done, file {} bytes", pdf_data.len());
+		    /* ^ `hayro` crate's example */
+			    slint_images.push({
+				    let tmp = std::env::temp_dir().join(format!("tmp{idx}.png"));
+				    std::fs::write(&tmp, &png).expect("Temp png cache error");
+				    slint::Image::load_from_path(&tmp).expect("Loading from cache error (slint::Image)")
+			    });
+		    }
 
-		let scale = 3.0;
+		    app.set_display(slint_images.get(app.get_current_page() as usize).expect("Accessing index beyond length of pdf; future resolve for no panics").clone());
+			st.compiled = slint_images.clone();
+		});
+	}
 
-		let pdf_data_cell = Arc::new(pdf_data);
-		let pdf = Pdf::new(pdf_data_cell).expect("PDF data generation error");
+	{
+		let weak = app_weak.clone();
+		let app_state_clone = Rc::clone(&app_state);
 
-		println!("PDF generation done.");
+		app_window.on_next(move || {
+			let st = app_state_clone.borrow();
+			let app = weak.upgrade().unwrap();
 
-		/* v Mostly taken from `hayro` crate's public example https://github.com/LaurenzV/hayro/blob/master/hayro/examples/render.rs */
+			if (app.get_current_page() as usize + 1) < st.compiled.len() {
+				app.set_current_page(app.get_current_page()+1);
+			}
 
-		let interpreter_settings = InterpreterSettings::default();
+		    app.set_display(st.compiled.get(app.get_current_page() as usize).expect("Accessing index beyond length of pdf; future resolve for no panics").clone());
 
-	    let render_settings = RenderSettings {
-	        x_scale: scale,
-	        y_scale: scale,
-	        ..Default::default()
-	    };
-	    let mut slint_images: Vec<slint::Image> = Vec::new();
+		});
+	}
+	{
+		let weak = app_weak.clone();
+		let app_state_clone = Rc::clone(&app_state);
 
-		println!("Starting slint image conversion");
+		app_window.on_prev(move || {
+			let st = app_state_clone.borrow();
+			let app = weak.upgrade().unwrap();
 
-	    for (idx, page) in pdf.pages().iter().enumerate() {
-	        let png = render(page, &interpreter_settings, &render_settings).take_png();
+			if (app.get_current_page() as usize) > 0 {
+				app.set_current_page(app.get_current_page()-1);
+			}
 
-	    /* ^ `hayro` crate's example */
-		    slint_images.push({
-			    let tmp = std::env::temp_dir().join(format!("tmp{idx}.png"));
-				println!("Writing temp cache");
-			    std::fs::write(&tmp, &png).expect("Temp png cache error");
-			    slint::Image::load_from_path(&tmp).expect("Loading from cache error (slint::Image)")
-		    });
-			println!("Loaded slint image {idx}");
-	    }
+		    app.set_display(st.compiled.get(app.get_current_page() as usize).expect("Accessing index beyond length of pdf; future resolve for no panics").clone());
 
-	    app.set_display(slint_images.get(app.get_current_page() as usize).expect("Accessing index beyond length of pdf; future resolve for no panics").clone());
-		println!("Set display to current page");
-	});
-
+		});
+	}
 
     app_window.run().unwrap();
 }
