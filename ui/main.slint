@@ -11,93 +11,148 @@ export component App inherits Window {
     callback prev();
     callback download();
 
+    MenuBar {
+        Menu {
+            title: @tr("File");
+            MenuItem {
+                title: @tr("Download as PDF");
+                activated => {
+                    root.download();
+                }
+            }
+        }
+
+        Menu {
+            title: @tr("Actions");
+            MenuItem {
+                title: @tr("Compile");
+                activated => {
+                    root.compile();
+                }
+            }
+        }
+        Menu {
+            title: @tr("Go");
+            MenuItem {
+                title: @tr("Next page");
+                activated => {
+                    root.next();
+                }
+            }
+            MenuItem {
+                title: @tr("Previous page");
+                activated => {
+                    root.prev();
+                }
+            }
+        }
+    }
 
 
     title: "Fiber Editor";
     preferred-width: 1440px;
     preferred-height: 844px;
 
+    key-handler := FocusScope {
+        key-pressed(event) => {
+            if (event.modifiers.control && event.text == "]") {
+                root.next();
+            }
+            if (event.modifiers.control && event.text == "[") {
+                root.prev();
+            }
+            if (event.modifiers.control && event.modifiers.shift && (event.text == "c" || event.text == "C")) {
+                root.compile();
+            }
+            if (event.modifiers.control && event.modifiers.shift && (event.text == "e" || event.text == "E")) {
+                root.download();
+            }
+            accept
+        }
+
+
+
     VerticalLayout {
-    	spacing: 5px;
-   		HorizontalLayout {
-     		width: 100%;
-       		height: 30px;
+        spacing: 5px;
+        HorizontalLayout {
+            width: 100%;
+            height: 30px;
 
-         	spacing: 3px;
+            spacing: 3px;
 
-          	Button {
-           		width: 100px;
-             	text: "Download";
-              	clicked => {root.download();}
-           	}
-
-         	Rectangle {
-         		Text {
-          			text: "Fiber Editor for LaTeX";
-            	}
-          	}
-
-   			Button {
-   				width: 150px;
-    			text: "Previous page";
-    			clicked => {
-   					root.prev();
-        			editor.clear-focus();
-       			}
-      		}
-        	Button {
-         		width: 150px;
-      			text: "Next page";
-
-      			clicked => {
-      				root.next();
-          			editor.clear-focus();
-             	}
-            }
-           	Rectangle {
-            	width: 150px;
-            	background: green;
-            	border-bottom-left-radius: 10px;
-            	border-bottom-right-radius: 10px;
-            	border-top-left-radius: 10px;
-            	border-top-right-radius: 10px;
-
-
-
-            	TouchArea {
-           			mouse-cursor: pointer;
-           			Text {
-              	 		text: "Compile";
-                  	}
-
-	            	clicked => {
-						editor.clear-focus();
-
-	           			root.compile();
-	             	}
-              	}
+            Button {
+                width: 100px;
+                text: "Download";
+                clicked => {
+                    root.download();
+                }
             }
 
-     	}
+            Rectangle {
+                Text {
+                    text: "Fiber Editor for LaTeX";
+                }
+            }
 
-	    HorizontalLayout {
-			spacing: 3px;
-	        editor := TextEdit {
-	            width: 55%;
-	            text: "\\documentclass{article}\n\\usepackage{graphicx} % Required for inserting images\n\\title{Title of Document}\n\\author{Name of Author}\n\\date{Month Year}\n\\begin{document}\n\n\\maketitle\n\n\\section{Introduction}\n\\end{document}";
+            Button {
+                width: 150px;
+                text: "Previous page";
+                clicked => {
+                    root.prev();
+                    editor.clear-focus();
+                }
+            }
 
-				font-size: 15pt;
+            Button {
+                width: 150px;
+                text: "Next page";
 
+                clicked => {
+                    root.next();
+                    editor.clear-focus();
+                }
+            }
 
-	            edited => {
-	                root.current = self.text;
-	            }
-	        }
+            Rectangle {
+                width: 150px;
+                background: green;
+                border-bottom-left-radius: 10px;
+                border-bottom-right-radius: 10px;
+                border-top-left-radius: 10px;
+                border-top-right-radius: 10px;
 
-	        viewer := Image {
-		        width: 45%;
-	        }
+                TouchArea {
+                    mouse-cursor: pointer;
+                    Text {
+                        text: "Compile";
+                    }
 
-	    }
-	}
+                    clicked => {
+                        editor.clear-focus();
+
+                        root.compile();
+                    }
+                }
+            }
+        }
+
+        HorizontalLayout {
+            spacing: 3px;
+            editor := TextEdit {
+                width: 55%;
+                text: "\\documentclass{article}\n\\usepackage{graphicx} % Required for inserting images\n\\title{Title of Document}\n\\author{Name of Author}\n\\date{Month Year}\n\\begin{document}\n\n\\maketitle\n\n\\section{Introduction}\n\\end{document}";
+
+                font-size: 15pt;
+
+                edited => {
+                    root.current = self.text;
+                }
+            }
+
+            viewer := Image {
+                width: 45%;
+            }
+        }
+    }
+    }
 }
