@@ -1,14 +1,18 @@
 use slint;
 use tectonic;
+use std::io::Write;
 use std::{cell::RefCell, rc::Rc, sync::Arc};
+use std::fs::File;
 use hayro::{render, Pdf, RenderSettings};
 use hayro_interpret::InterpreterSettings;
+
 
 slint::include_modules!();
 
 #[derive(Default)]
 struct SharedState {
 	compiled: Vec<slint::Image>,
+	writeable: Vec<u8>
 }
 
 fn main() {
@@ -26,7 +30,13 @@ fn main() {
 			let app = weak.upgrade().unwrap();
 
 			let latex = app.get_current();
-			let pdf_data = tectonic::latex_to_pdf(latex).expect("LaTeX processing error");
+
+			let pdf_data = match tectonic::latex_to_pdf(latex) {
+				Ok(val) => val,
+				Err(_e) => tectonic::latex_to_pdf("\\documentclass{article}\n\\title{LaTeX processing error}\n\\begin{document}\n\n\\maketitle\\end{document}").expect("Huh?")
+			};
+
+			let pdf_data_write = pdf_data.clone();
 
 			let scale = 2.5;
 
@@ -56,8 +66,13 @@ fn main() {
 			    });
 		    }
 
+
+			app.set_current_page((slint_images.len().min(app.get_current_page() as usize + 1)-1) as i32);
+
+
 		    app.set_display(slint_images.get(app.get_current_page() as usize).expect("Accessing index beyond length of pdf; future resolve for no panics").clone());
 			st.compiled = slint_images.clone();
+			st.writeable = pdf_data_write.clone();
 		});
 	}
 
@@ -91,6 +106,26 @@ fn main() {
 
 		    app.set_display(st.compiled.get(app.get_current_page() as usize).expect("Accessing index beyond length of pdf; future resolve for no panics").clone());
 
+		});
+	}
+	{
+		let weak = app_weak.clone();
+		let app_state_clone = Rc::clone(&app_state);
+
+		app_window.on_download(move || {
+			let st = app_state_clone.borrow();
+			let app = weak.upgrade().unwrap();
+
+			if (app.get_current_page() as usize) > 0 {
+				app.set_current_page(app.get_current_page()-1);
+			}
+
+			let home = dirs::home_dir().expect("Could not find home directory");
+			let downloads = home.join("Downloads");
+		    let filepath = downloads.join("fiber_download.pdf");
+
+		    let mut file = File::create(&filepath).expect("File creation error");
+		    file.write(&st.writeable).expect("Write error");
 		});
 	}
 

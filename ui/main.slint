@@ -9,6 +9,7 @@ export component App inherits Window {
     callback compile();
     callback next();
     callback prev();
+    callback download();
 
 
 
@@ -24,10 +25,16 @@ export component App inherits Window {
 
          	spacing: 3px;
 
+          	Button {
+           		width: 100px;
+             	text: "Download";
+              	clicked => {root.download();}
+           	}
+
          	Rectangle {
-         	Text {
-          text: "Fiber Editor for LaTeX";
-          }
+         		Text {
+          			text: "Fiber Editor for LaTeX";
+            	}
           	}
 
    			Button {
@@ -41,6 +48,7 @@ export component App inherits Window {
         	Button {
          		width: 150px;
       			text: "Next page";
+
       			clicked => {
       				root.next();
           			editor.clear-focus();
@@ -54,14 +62,18 @@ export component App inherits Window {
             	border-top-left-radius: 10px;
             	border-top-right-radius: 10px;
 
+
+
             	TouchArea {
+           			mouse-cursor: pointer;
            			Text {
               	 		text: "Compile";
                   	}
 
 	            	clicked => {
+						editor.clear-focus();
+
 	           			root.compile();
-	              		editor.clear-focus();
 	             	}
               	}
             }
@@ -71,10 +83,11 @@ export component App inherits Window {
 	    HorizontalLayout {
 			spacing: 3px;
 	        editor := TextEdit {
-	            width: 50%;
-	            text: "\\documentclass{article}\n\\usepackage{graphicx} % Required for inserting images\n\\title{test}\n\\author{Aiden Ghim}\n\\date{October 2025}\n\\begin{document}\n\n\\maketitle\n\n\\section{Introduction}\n\\end{document}";
+	            width: 55%;
+	            text: "\\documentclass{article}\n\\usepackage{graphicx} % Required for inserting images\n\\title{Title of Document}\n\\author{Name of Author}\n\\date{Month Year}\n\\begin{document}\n\n\\maketitle\n\n\\section{Introduction}\n\\end{document}";
 
-				font-size: 16px;
+				font-size: 15pt;
+
 
 	            edited => {
 	                root.current = self.text;
@@ -82,7 +95,7 @@ export component App inherits Window {
 	        }
 
 	        viewer := Image {
-		        width: 50%;
+		        width: 45%;
 	        }
 
 	    }

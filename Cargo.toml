@@ -10,6 +10,7 @@ slint = { version = "1.13.1", default-features = false, features = ["renderer-fe
 tectonic = { version = "0.15", features = ["external-harfbuzz"] }
 hayro = "0.4.0"
 hayro-interpret = "0.4.0"
+dirs = "5"
 
 
 
