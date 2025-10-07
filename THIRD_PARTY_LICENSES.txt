@@ -1,0 +1,22 @@
+This app bundles the following open source components:
+
+HarfBuzz — Copyright © 2010-2024 The HarfBuzz Authors
+Licensed under the MIT License.
+https://github.com/harfbuzz/harfbuzz/blob/main/COPYING
+
+FreeType — Copyright © 1996-2024 The FreeType Project
+Licensed under the FreeType License.
+https://freetype.org/license.html
+
+Graphite2 — Copyright © 2010-2024 SIL International
+Licensed under the SIL Open Font License (OFL).
+https://scripts.sil.org/OFL
+
+ICU4C — Copyright © 1991-2024 Unicode, Inc.
+Licensed under the ICU License.
+https://icu.unicode.org/
+
+libpng — Copyright © 1998-2024 Glenn Randers-Pehrson and contributors
+Licensed under the libpng License.
+http://www.libpng.org/pub/png/src/libpng-LICENSE.txt
+
