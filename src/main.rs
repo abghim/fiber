@@ -1,6 +1,7 @@
 use slint;
 use tectonic;
 use std::io::Write;
+use std::time::Duration;
 use std::{cell::RefCell, rc::Rc, sync::Arc};
 use std::fs::File;
 use hayro::{render, Pdf, RenderSettings};
@@ -122,7 +123,14 @@ fn main() {
 
 			let home = dirs::home_dir().expect("Could not find home directory");
 			let downloads = home.join("Downloads");
-		    let filepath = downloads.join("fiber_download.pdf");
+
+
+            use std::time::SystemTime;
+
+            let duration = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).expect("time went backwards").as_secs();
+
+            
+		    let filepath = downloads.join(format!("fiber_download_{}.pdf", duration));
 
 		    let mut file = File::create(&filepath).expect("File creation error");
 		    file.write(&st.writeable).expect("Write error");
